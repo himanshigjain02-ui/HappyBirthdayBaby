@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Netflix</title>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+    }
+
+    body {
+      background: radial-gradient(circle at center, #1b1b1b 0%, #141414 100%);
+      background-color: #141414;
+      color: #fff;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Netflix 'N' Icon in Top-Left Corner */
+    .netflix-icon-wrapper {
+      position: absolute;
+      top: 30px;
+      left: 50px;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+    }
+
+    .netflix-icon {
+      height: 48px;       /* Fixed height */
+      width: auto;        /* Preserves native aspect ratio */
+      max-width: 32px;    /* Prevents horizontal stretching */
+      object-fit: contain;
+      display: block;
+      filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.6));
+    }
+
+    /* Central Profile Selection Container */
+    .profiles-gate-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.4s ease-in-out;
+    }
+
+    /* "Who's watching?" Title */
+    .gate-prompt {
+      font-size: clamp(32px, 3.5vw, 56px);
+      font-weight: 400;
+      letter-spacing: 0.5px;
+      color: #ffffff;
+      margin-bottom: 2.2rem;
+      text-align: center;
+    }
+
+    /* Single Profile Item Container */
+    .profile-link {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-decoration: none;
+      color: #808080;
+      cursor: pointer;
+    }
+
+    /* Square Profile Avatar Box */
+    .avatar-wrapper {
+      position: relative;
+      width: 10vw;
+      height: 10vw;
+      min-width: 140px;
+      min-height: 140px;
+      max-width: 200px;
+      max-height: 200px;
+      border-radius: 4px;
+      overflow: hidden;
+      border: 3.5px solid transparent;
+      transition: border-color 0.2s ease, transform 0.2s ease;
+      background-color: #333;
+    }
+
+    .avatar-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* Profile Name label */
+    .profile-name {
+      margin-top: 14px;
+      font-size: clamp(16px, 1.3vw, 22px);
+      letter-spacing: 0.5px;
+      color: #808080;
+      transition: color 0.2s ease;
+      text-align: center;
+    }
+
+    /* Netflix Hover Effect */
+    .profile-link:hover .avatar-wrapper {
+      border-color: #ffffff;
+    }
+
+    .profile-link:hover .profile-name {
+      color: #ffffff;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: scale(1.05);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .netflix-icon-wrapper {
+        top: 20px;
+        left: 25px;
+      }
+      .netflix-icon {
+        height: 36px;
+      }
+      .avatar-wrapper {
+        width: 130px;
+        height: 130px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Netflix 'N' Logo Image -->
+  <div class="netflix-icon-wrapper">
+    <!-- Replace 'netflix-n.png' with the actual filename of your N logo -->
+    <img src="netflix_logo.png" alt="Netflix" class="netflix-icon" />
+  </div>
+
+  <div class="profiles-gate-container">
+    <h1 class="gate-prompt">Who's watching?</h1>
+
+    <!-- Clickable Profile Card leading to UsVideo.html -->
+    <a href="UsVideo.html" class="profile-link">
+      <div class="avatar-wrapper">
+        <!-- Replace 'your-photo.jpg' with your imported couple/profile photo -->
+        <img src="r&a.jpeg" alt="US" onerror="this.src='https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=500&auto=format&fit=crop&q=80'" />
+      </div>
+      <span class="profile-name">US ❤️</span>
+    </a>
+  </div>
+
+</body>
+</html>

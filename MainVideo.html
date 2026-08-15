@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Happy Birthday Ankush | S28: E1</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+    }
+
+    body {
+      background-color: #000;
+      color: #fff;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .video-container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* Video Player with High-Quality GPU Rendering */
+    #player {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background-color: #000;
+      cursor: pointer;
+      transform: translateZ(0);
+      -webkit-transform: translateZ(0);
+      will-change: transform;
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: high-quality;
+      backface-visibility: hidden;
+    }
+
+    /* Custom Player Overlay */
+    .player-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 30px 40px;
+      background: linear-gradient(
+        180deg,
+        rgba(0, 0, 0, 0.75) 0%,
+        transparent 25%,
+        transparent 70%,
+        rgba(0, 0, 0, 0.85) 100%
+      );
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .video-container:hover .player-overlay,
+    .player-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* Top Bar Header */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    }
+
+    .top-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .episode-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .series-title {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .episode-title {
+      font-size: 14px;
+      color: #a3a3a3;
+      font-weight: 400;
+    }
+
+    /* Rewatch / Back Button */
+    .rewatch-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(40, 40, 40, 0.7);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      padding: 8px 18px;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      transition: all 0.2s ease-in-out;
+    }
+
+    .rewatch-btn:hover {
+      background: #e50914;
+      border-color: #e50914;
+      transform: scale(1.04);
+    }
+
+    .rewatch-btn svg {
+      width: 16px;
+      height: 16px;
+      fill: #ffffff;
+    }
+
+    /* Bottom Control Bar */
+    .bottom-bar {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .progress-container {
+      position: relative;
+      width: 100%;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: height 0.15s ease;
+    }
+
+    .progress-container:hover {
+      height: 8px;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: #e50914;
+      border-radius: 4px;
+      position: relative;
+    }
+
+    .progress-scrubber {
+      position: absolute;
+      right: -6px;
+      top: 50%;
+      transform: translateY(-50%) scale(0);
+      width: 14px;
+      height: 14px;
+      background: #e50914;
+      border-radius: 50%;
+      transition: transform 0.15s ease;
+    }
+
+    .progress-container:hover .progress-scrubber {
+      transform: translateY(-50%) scale(1);
+    }
+
+    .controls-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .left-controls, .right-controls {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .control-btn {
+      background: none;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+      opacity: 0.9;
+    }
+
+    .control-btn:hover {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+
+    .control-btn svg {
+      width: 26px;
+      height: 26px;
+      fill: #fff;
+    }
+
+    .time-display {
+      font-size: 13px;
+      color: #d2d2d2;
+      font-weight: 500;
+    }
+
+    /* Video End Screen Overlay */
+    .end-screen {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      z-index: 20;
+    }
+
+    .end-screen.active {
+      display: flex;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .end-title {
+      font-size: 26px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .end-btn-group {
+      display: flex;
+      gap: 16px;
+    }
+
+    .end-btn {
+      padding: 12px 28px;
+      border-radius: 4px;
+      font-size: 15px;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform 0.2s ease, background-color 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .end-btn.primary {
+      background-color: #e50914;
+      color: #ffffff;
+      border: none;
+    }
+
+    .end-btn.secondary {
+      background: transparent;
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.5);
+    }
+
+    .end-btn:hover {
+      transform: scale(1.05);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @media (max-width: 768px) {
+      .player-overlay {
+        padding: 20px;
+      }
+      .series-title {
+        font-size: 15px;
+      }
+      .episode-title {
+        font-size: 12px;
+      }
+      .rewatch-btn {
+        padding: 6px 12px;
+        font-size: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="video-container" id="videoWrapper">
+    <!-- Replace source with your actual imported video path -->
+    <video id="player" playsinline preload="auto">
+      <source src="ankushvideo.mp4" />
+      Your browser does not support the video tag.
+    </video>
+
+    <!-- Top & Bottom Control HUD -->
+    <div class="player-overlay" id="playerOverlay">
+      <div class="top-bar">
+        <div class="top-left">
+          <div class="episode-info">
+            <span class="series-title">Happy Birthday Ankush</span>
+            <span class="episode-title">Season 28: Episode Preview</span>
+          </div>
+        </div>
+
+        <!-- Rewatch Button navigating back to UsVideo.html -->
+        <a href="UsVideo.html" class="rewatch-btn" title="Back to UsVideo Overview">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/>
+          </svg>
+          <span>Rewatch</span>
+        </a>
+      </div>
+
+      <div class="bottom-bar">
+        <div class="progress-container" id="progressContainer">
+          <div class="progress-bar" id="progressBar">
+            <div class="progress-scrubber"></div>
+          </div>
+        </div>
+
+        <div class="controls-row">
+          <div class="left-controls">
+            <!-- Play / Pause -->
+            <button class="control-btn" id="playBtn" onclick="togglePlay()">
+              <svg id="playIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+              <svg id="pauseIcon" viewBox="0 0 24 24" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+            </button>
+
+            <!-- 10s Rewind -->
+            <button class="control-btn" onclick="seek(-10)">
+              <svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
+            </button>
+
+            <!-- 10s Forward -->
+            <button class="control-btn" onclick="seek(10)">
+              <svg viewBox="0 0 24 24"><path d="M12 5V1l5 5-5 5V7c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6h2c0 4.42-3.58 8-8 8s-8-3.58-8-8 3.58-8 8-8z"/></svg>
+            </button>
+
+            <!-- Mute / Unmute -->
+            <button class="control-btn" id="muteBtn" onclick="toggleMute()">
+              <svg id="volUpIcon" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+              <svg id="volOffIcon" viewBox="0 0 24 24" style="display:none;"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
+            </button>
+
+            <span class="time-display" id="timeRemaining">00:00</span>
+          </div>
+
+          <div class="right-controls">
+            <button class="control-btn" onclick="toggleFullscreen()">
+              <svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Automatic End-Screen Dialog When Video Completes -->
+    <div class="end-screen" id="endScreen">
+      <div class="end-title">Episode Preview Complete ❤️</div>
+      <div class="end-btn-group">
+        <a href="UsVideo.html" class="end-btn primary">
+          <svg style="width:16px;height:16px;fill:#fff;" viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
+          <span>Rewatch from Overview</span>
+        </a>
+        <button class="end-btn secondary" onclick="replayDirectly()">Play Again</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const player = document.getElementById('player');
+    const playIcon = document.getElementById('playIcon');
+    const pauseIcon = document.getElementById('pauseIcon');
+    const volUpIcon = document.getElementById('volUpIcon');
+    const volOffIcon = document.getElementById('volOffIcon');
+    const progressBar = document.getElementById('progressBar');
+    const progressContainer = document.getElementById('progressContainer');
+    const timeRemaining = document.getElementById('timeRemaining');
+    const videoWrapper = document.getElementById('videoWrapper');
+    const playerOverlay = document.getElementById('playerOverlay');
+    const endScreen = document.getElementById('endScreen');
+
+    player.play().catch(() => updatePlayIcons(false));
+
+    function togglePlay() {
+      if (player.paused || player.ended) {
+        player.play();
+        updatePlayIcons(true);
+      } else {
+        player.pause();
+        updatePlayIcons(false);
+      }
+    }
+
+    function updatePlayIcons(isPlaying) {
+      playIcon.style.display = isPlaying ? 'none' : 'block';
+      pauseIcon.style.display = isPlaying ? 'block' : 'none';
+    }
+
+    function toggleMute() {
+      player.muted = !player.muted;
+      volUpIcon.style.display = player.muted ? 'none' : 'block';
+      volOffIcon.style.display = player.muted ? 'block' : 'none';
+    }
+
+    function seek(seconds) {
+      player.currentTime = Math.max(0, Math.min(player.duration, player.currentTime + seconds));
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        videoWrapper.requestFullscreen().catch(err => alert(err.message));
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
+    function replayDirectly() {
+      endScreen.classList.remove('active');
+      player.currentTime = 0;
+      player.play();
+    }
+
+    // Time & Progress listener
+    player.addEventListener('timeupdate', () => {
+      if (player.duration) {
+        const percentage = (player.currentTime / player.duration) * 100;
+        progressBar.style.width = percentage + '%';
+
+        const timeLeft = Math.floor(player.duration - player.currentTime);
+        const mins = Math.floor(timeLeft / 60);
+        const secs = timeLeft % 60;
+        timeRemaining.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+      }
+    });
+
+    // Show End Screen when finished
+    player.addEventListener('ended', () => {
+      endScreen.classList.add('active');
+    });
+
+    player.addEventListener('play', () => updatePlayIcons(true));
+    player.addEventListener('pause', () => updatePlayIcons(false));
+
+    // Progress scrub
+    progressContainer.addEventListener('click', (e) => {
+      const rect = progressContainer.getBoundingClientRect();
+      const clickPos = (e.clientX - rect.left) / rect.width;
+      player.currentTime = clickPos * player.duration;
+    });
+
+    // Auto-hide controls
+    let hideTimer;
+    function resetHideTimer() {
+      playerOverlay.classList.add('active');
+      clearTimeout(hideTimer);
+      hideTimer = setTimeout(() => {
+        if (!player.paused) {
+          playerOverlay.classList.remove('active');
+        }
+      }, 2500);
+    }
+
+    videoWrapper.addEventListener('mousemove', resetHideTimer);
+    videoWrapper.addEventListener('click', (e) => {
+      if (e.target === player) togglePlay();
+    });
+  </script>
+
+</body>
+</html>
